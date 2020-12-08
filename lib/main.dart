@@ -12,12 +12,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // final wordPair = WordPair.random();
     return MaterialApp(
-        title: 'Startup Name Generator111',
-        home: RandomWords(),
+      title: 'Startup Name Generator111',
+      theme: ThemeData(
+        // selectedRowColor: Colors.pink,
+        canvasColor: Colors.purple,
+        primaryColor: Colors.white,
+      ),
+      home: RandomWords(),
     );
   }
 }
-
 
 class RandomWords extends StatefulWidget {
   @override
@@ -34,8 +38,43 @@ class _RandomWordsState extends State<RandomWords> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Startup Name Generator2'),
+        actions: [
+          IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
+        ],
       ),
       body: _buildSuggestions(),
+    );
+  }
+
+  void _pushSaved() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          final tiles = _saved.map(
+            (WordPair pair) {
+              return ListTile(
+                title: Text(
+                  pair.asPascalCase,
+                  style: _biggerFont,
+                ),
+              );
+            },
+          );
+          final divided = ListTile.divideTiles(
+            context: context,
+            tiles: tiles,
+          // ).toList();
+          );
+          print(divided.runtimeType);
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Saved Suggestions'),
+            ),
+            body: ListView(children: divided.toList()),
+          );
+        },
+      ),
     );
   }
 
@@ -43,7 +82,7 @@ class _RandomWordsState extends State<RandomWords> {
     return ListView.builder(
         padding: EdgeInsets.all(16.0),
         itemBuilder: /*1*/ (context, i) {
-          print(i);
+          // print(i);
           if (i.isOdd) return Divider(); /*2*/
 
           final index = i ~/ 2; /*3*/
@@ -61,7 +100,19 @@ class _RandomWordsState extends State<RandomWords> {
         pair.asPascalCase,
         style: _biggerFont,
       ),
+      trailing: Icon(
+        alreadySaved ? Icons.favorite : Icons.favorite_border,
+        color: alreadySaved ? Colors.red : null,
+      ),
+      onTap: () {
+        setState(() {
+          if (alreadySaved) {
+            _saved.remove(pair);
+          } else {
+            _saved.add(pair);
+          }
+        });
+      },
     );
   }
-
 }
